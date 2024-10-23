@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Scan Report</title>
+    <title>Server Status</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -11,23 +11,20 @@
             padding: 0;
             display: flex;
             justify-content: center;
-            align-items: flex-start; /* 수정: 가운데 정렬에서 위쪽 정렬로 변경 */
+            align-items: flex-start;
             min-height: 100vh;
-            overflow-y: auto; /* 수정: 스크롤 동작 추가 */
+            overflow-y: auto;
         }
         .container {
-            width: 60%;
+            width: 80%;
             background-color: #fff;
             padding: 20px;
             border: 1px solid #ddd;
             text-align: center;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            margin: 20px 0; /* 수정: 상하 여백 추가 */
+            margin: 20px 0;
         }
         h1 {
-            color: #002c5f;
-        }
-        h2 {
             color: #002c5f;
         }
         table {
@@ -46,28 +43,38 @@
         tr:nth-child(even) {
             background-color: #f9f9f9;
         }
+        button {
+            background-color: #002c5f;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Scan Report</h1>
-        {% for server in servers %}
-            <h2>Server: {{ server.name }}</h2>
+        <h1>Server Status</h1>
+        <form method="POST" action="{{ url_for('status.report') }}">
             <table>
                 <tr>
-                    <th>Unit</th>
+                    <th>Name</th>
                     <th>Status</th>
+                    <th>OS</th>
+                    <th>Scan</th>
                 </tr>
-                <tr>
-                    <td>Connection Status</td>
-                    <td>{{ server.status }}</td>
-                </tr>
-                <tr>
-                    <td>OS Info</td>
-                    <td>{{ server.os }}</td>
-                </tr>
+                {% for server in servers %}
+                    <tr>
+                        <td>{{ server.name }}</td>
+                        <td>{{ server.status }}</td>
+                        <td>{{ server.os }}</td>
+                        <td><input type="checkbox" name="server" value="{{ server.name }}" checked></td>
+                    </tr>
+                {% endfor %}
             </table>
-        {% endfor %}
+            <button type="submit">Scan</button>
+        </form>
     </div>
 </body>
 </html>

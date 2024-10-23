@@ -1,8 +1,8 @@
-from flask import Blueprint, render_template
+from flask import Blueprint, render_template, request, redirect, url_for
 import subprocess
 import re
 
-status_bp = Blueprint('status', __name__, url_prefix='/')
+status_bp = Blueprint('status', __name__, url_prefix='/status')
 
 @status_bp.route('/')
 def status():
@@ -24,3 +24,11 @@ def status():
         })
 
     return render_template('status_template.html', servers=servers)
+
+@status_bp.route('/report', methods=['POST'])
+def report():
+    checked_servers = request.form.getlist('server')
+    # 이 부분에서 checked_servers를 사용하여 필요한 작업을 수행할 수 있습니다.
+    # 예시: print(checked_servers)
+    return f"선택된 서버: {checked_servers}"
+
