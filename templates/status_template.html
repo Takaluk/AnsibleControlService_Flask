@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Scan Report</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* 수정: 가운데 정렬에서 위쪽 정렬로 변경 */
+            min-height: 100vh;
+            overflow-y: auto; /* 수정: 스크롤 동작 추가 */
+        }
+        .container {
+            width: 60%;
+            background-color: #fff;
+            padding: 20px;
+            border: 1px solid #ddd;
+            text-align: center;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin: 20px 0; /* 수정: 상하 여백 추가 */
+        }
+        h1 {
+            color: #002c5f;
+        }
+        h2 {
+            color: #002c5f;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f0f0f0;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Scan Report</h1>
+        {% for server in servers %}
+            <h2>Server: {{ server.name }}</h2>
+            <table>
+                <tr>
+                    <th>Unit</th>
+                    <th>Status</th>
+                </tr>
+                <tr>
+                    <td>Connection Status</td>
+                    <td>{{ server.status }}</td>
+                </tr>
+                <tr>
+                    <td>OS Info</td>
+                    <td>{{ server.os }}</td>
+                </tr>
+            </table>
+        {% endfor %}
+    </div>
+</body>
+</html>
+
