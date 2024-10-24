@@ -56,25 +56,23 @@
 <body>
     <div class="container">
         <h1>Server Status</h1>
-        <form method="POST" action="{{ url_for('status.report') }}">
-            <table>
+        <table>
+            <tr>
+                <th>Name</th>
+                <th>Status</th>
+                <th>OS</th>
+            </tr>
+            {% for server in servers %}
                 <tr>
-                    <th>Name</th>
-                    <th>Status</th>
-                    <th>OS</th>
-                    <th>Scan</th>
+                    <td>{{ server.name }}</td>
+                    <td>{{ server.status }}</td>
+                    <td>{{ server.os }}</td>
                 </tr>
-                {% for server in servers %}
-                    <tr>
-                        <td>{{ server.name }}</td>
-                        <td>{{ server.status }}</td>
-                        <td>{{ server.os }}</td>
-                        <td><input type="checkbox" name="server" value="{{ server.name }}" checked></td>
-                    </tr>
-                {% endfor %}
-            </table>
-            <button type="submit">Scan</button>
-        </form>
+            {% endfor %}
+        </table>
+	<form action="{{ url_for('scan.scan') }}" method="GET">
+    		<button type="submit">Go to Scan Page</button>
+	</form>
     </div>
 </body>
 </html>

@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scan Page</title>
+</head>
+<body>
+    <h1>Select Items</h1>
+    <form method="POST">
+        <h2>Servers</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Checkbox</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for server in servers %}
+                    <tr>
+                        <td>{{ server }}</td>
+                        <td><input type="checkbox" name="servers" value="{{ server }}"></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        
+        <h2>Linux Checklist</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Checkbox</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in linux_checklist %}
+                    <tr>
+                        <td>{{ item }}</td>
+                        <td><input type="checkbox" name="linux_checklist" value="{{ item }}"></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <h2>Windows Checklist</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Checkbox</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in windows_checklist %}
+                    <tr>
+                        <td>{{ item }}</td>
+                        <td><input type="checkbox" name="windows_checklist" value="{{ item }}"></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <button type="submit">SEND</button>
+    </form>
+</body>
+</html>
+

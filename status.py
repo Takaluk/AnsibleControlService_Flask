@@ -1,7 +1,8 @@
 from flask import Blueprint, render_template, request, redirect, url_for
 import subprocess
 import re
-
+import json
+import os
 status_bp = Blueprint('status', __name__, url_prefix='/status')
 
 @status_bp.route('/')
@@ -23,12 +24,11 @@ def status():
             'os': os_info,
         })
 
-    return render_template('status_template.html', servers=servers)
+    # 서버 상태를 JSON 파일로 저장 (sudo 사용)
+    servers_json = json.dumps(servers, indent=4)
+    with open('/tmp/server_status.json', 'w') as json_file:
+        json_file.write(servers_json)
+    os.system('sudo mv /tmp/server_status.json /AnsibleVulnScanner/server_status.json')
 
-@status_bp.route('/report', methods=['POST'])
-def report():
-    checked_servers = request.form.getlist('server')
-    # 이 부분에서 checked_servers를 사용하여 필요한 작업을 수행할 수 있습니다.
-    # 예시: print(checked_servers)
-    return f"선택된 서버: {checked_servers}"
+    return render_template('status_template.html', servers=servers)
 

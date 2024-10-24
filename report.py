@@ -1,23 +1,34 @@
-from flask import Blueprint, render_template
+from flask import Blueprint, request, render_template
 import subprocess
 import json
 import glob
 import os
 import re
+report_bp = Blueprint('report', __name__)
 
-report_bp = Blueprint('report', __name__, url_prefix='/report')
-@report_bp.route('/')
+@report_bp.route('/report')
 def report():
-    # 기존 스캔 결과 삭제
-    subprocess.run(['sudo', 'rm', '-rf', '/AnsibleVulnScanner/scan_results/*'], check=True)
-
-    # Ansible playbook 명령어 실행
+    servers = request.args.get('servers')
+    linux_checklist = request.args.get('linux_checklist')
+    windows_checklist = request.args.get('windows_checklist')
+    
+    servers_list = servers.split(',') if servers else []
+    linux_list = linux_checklist.split(',') if linux_checklist else []
+    windows_list = windows_checklist.split(',') if windows_checklist else []
+    
     command = 'cd /AnsibleVulnScanner/ && sudo -u ubuntu ansible-playbook playbooks/main.yml'
-    result = subprocess.run(command, shell=True, capture_output=True, text=True)
-    if result.returncode != 0:
-        return 'Ansible 플레이북 실행 중 오류가 발생했습니다.'
-
-    # JSON 파일 읽기
+    if servers_list:
+        command += f" --limit {','.join(servers_list)}"
+    
+    unchecked_linux = [item for item in (f'U_{i:02}' for i in range(1, 37)) if item not in linux_list]
+    unchecked_windows = [item for item in (f'W_{i:02}' for i in range(1, 33)) if item not in windows_list]
+    
+    if unchecked_linux or unchecked_windows:
+        command += f" --skip-tags {','.join(unchecked_linux + unchecked_windows)}"
+    
+    subprocess.run(command, shell=True)
+    
+        # JSON 파일 읽기
     scan_results_dir = '/AnsibleVulnScanner/scan_results/'
     json_files = glob.glob(os.path.join(scan_results_dir, '*.json'))
     if not json_files:
