@@ -49,7 +49,7 @@ def report():
             if data:
                 hostname = data['hostname']
                 scan_results = data['scan_results']
-                servers.append({'hostname': hostname, 'scan_results': scan_results})
-
+                if scan_results:  # scan_results가 비어 있지 않을 때만 실행
+                    servers.append({'hostname': hostname, 'scan_results': scan_results})
     return render_template('report_template.html', servers=servers)
 
