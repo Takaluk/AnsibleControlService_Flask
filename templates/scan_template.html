@@ -1,69 +1,195 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Scan Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            overflow: hidden; /* 테이블이 늘어나지 않도록 */
+            table-layout: fixed; /* 고정된 레이아웃 */
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+            overflow: hidden; /* 내용이 넘치면 숨김 */
+            text-overflow: ellipsis; /* 넘치는 내용 생략 */
+            white-space: nowrap; /* 줄바꿈 방지 */
+        }
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        h3 {
+            margin-top: 30px;
+            font-size: 1.5em;
+            color: #333;
+        }
+        .checkbox-cell {
+            width: 50px; /* Checkbox 열 너비 조정 */
+        }
+        .detail-btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .popup {
+            display: none;
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .popup-content {
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            width: 80%;
+            max-width: 600px;
+        }
+        .close {
+            cursor: pointer;
+            color: red;
+            float: right;
+            font-size: 20px;
+        }
+    </style>
 </head>
 <body>
-    <h1>Select Items</h1>
-    <form method="POST">
-        <h2>Servers</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Checkbox</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for server in servers %}
-                    <tr>
-                        <td>{{ server }}</td>
-                        <td><input type="checkbox" name="servers" value="{{ server }}"></td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        
-        <h2>Linux Checklist</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Checkbox</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for item in linux_checklist %}
-                    <tr>
-                        <td>{{ item }}</td>
-                        <td><input type="checkbox" name="linux_checklist" value="{{ item }}"></td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
 
-        <h2>Windows Checklist</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Checkbox</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for item in windows_checklist %}
-                    <tr>
-                        <td>{{ item }}</td>
-                        <td><input type="checkbox" name="windows_checklist" value="{{ item }}"></td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+<form method="POST">
+    <h2>Servers</h2>
+    <table>
+        <thead>
+            <tr>
+                <th class="checkbox-cell"></th>
+                <th>Hostname</th>
+                <th>IP Address</th>
+                <th>OS</th>
+                <th>Version</th>
+                <th>Status</th>
+                <th>Security Level</th>
+                <th>Department</th>
+                <th>Manager</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for server in servers %}
+            <tr>
+                <td class="checkbox-cell"><input type="checkbox" name="servers" value="{{ server.name }}"></td>
+                <td>{{ server.name }}</td>
+                <td>{{ server.ip }}</td>
+                <td>{{ server.os }}</td>
+                <td>{{ server.version }}</td>
+                <td>{{ server.status }}</td>
+                <td>{{ server.security_level }}</td>
+                <td>{{ server.department }}</td>
+                <td>{{ server.manager }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 
-        <button type="submit">SEND</button>
-    </form>
+    <h3>Linux Checklist</h3>
+    <table>
+        <thead>
+            <tr>
+                <th class="checkbox-cell"></th>
+                <th>#</th>
+                <th>Message</th>
+                <th>Detail</th>
+                <th>Level</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in linux_checklist %}
+            <tr>
+                <td class="checkbox-cell"><input type="checkbox" name="linux_checklist" value="{{ item.number }}"></td>
+                <td>{{ item.number }}</td>
+                <td>{{ item.msg }}</td>
+                <td>
+                    <button class="detail-btn" onclick="showPopup('{{ item.detail }}')">보기</button>
+                </td>
+                <td>{{ item.level }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h3>Windows Checklist</h3>
+    <table>
+        <thead>
+            <tr>
+                <th class="checkbox-cell"></th>
+                <th>#</th>
+                <th>Message</th>
+                <th>Detail</th>
+                <th>Level</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in windows_checklist %}
+            <tr>
+                <td class="checkbox-cell"><input type="checkbox" name="windows_checklist" value="{{ item.number }}"></td>
+                <td>{{ item.number }}</td>
+                <td>{{ item.msg }}</td>
+                <td>
+                    <button class="detail-btn" onclick="showPopup('{{ item.detail }}')">보기</button>
+                </td>
+                <td>{{ item.level }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <button type="submit">SEND</button>
+</form>
+
+<div class="popup" id="popup">
+    <div class="popup-content">
+        <span class="close" onclick="closePopup()">&times;</span>
+        <h3>Detail</h3>
+        <p id="popup-text"></p>
+    </div>
+</div>
+
+<script>
+    function showPopup(detail) {
+        document.getElementById('popup-text').innerText = detail;
+        document.getElementById('popup').style.display = 'flex';
+    }
+
+    function closePopup() {
+        document.getElementById('popup').style.display = 'none';
+    }
+
+    // 페이지 클릭 시 팝업 닫기 (배경 클릭 시)
+    window.onclick = function(event) {
+        if (event.target == document.getElementById('popup')) {
+            closePopup();
+        }
+    }
+</script>
+
 </body>
 </html>
 
