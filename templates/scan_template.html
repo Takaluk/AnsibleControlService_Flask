@@ -1,87 +1,95 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scan Page</title>
+    <title>Server Management</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
+            background-color: #f4f4f4;
         }
+
+        h2, h3 {
+            color: #333;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 20px;
-            overflow: hidden; /* 테이블이 늘어나지 않도록 */
-            table-layout: fixed; /* 고정된 레이아웃 */
+            background: white;
         }
+
         th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
+            padding: 10px;
             text-align: left;
-            overflow: hidden; /* 내용이 넘치면 숨김 */
-            text-overflow: ellipsis; /* 넘치는 내용 생략 */
-            white-space: nowrap; /* 줄바꿈 방지 */
+            border: 1px solid #ddd;
         }
+
         th {
             background-color: #f2f2f2;
-            font-weight: bold;
-        }
-        tr:hover {
-            background-color: #f5f5f5;
-        }
-        h3 {
-            margin-top: 30px;
-            font-size: 1.5em;
             color: #333;
         }
-        .checkbox-cell {
-            width: 50px; /* Checkbox 열 너비 조정 */
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
         }
-        .detail-btn {
-            background-color: #007bff;
+
+        .checkbox-cell {
+            width: 30px;
+            text-align: center;
+        }
+
+        button.detail-btn {
+            background-color: #007BFF;
             color: white;
             border: none;
             padding: 5px 10px;
             cursor: pointer;
             border-radius: 5px;
         }
-        .popup {
-            display: none;
-            position: fixed;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.7);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
+
+        button.detail-btn:hover {
+            background-color: #0056b3;
         }
-        .popup-content {
-            background: white;
-            padding: 20px;
-            border-radius: 5px;
-            width: 80%;
-            max-width: 600px;
-        }
-        .close {
+
+        button[type="submit"] {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
             cursor: pointer;
-            color: red;
-            float: right;
-            font-size: 20px;
+            border-radius: 5px;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #218838;
         }
     </style>
+    <script>
+        function toggleSelectAll(checklistName, selectAllCheckbox) {
+            const checkboxes = document.querySelectorAll(`input[name="${checklistName}"]`);
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = selectAllCheckbox.checked;
+            });
+        }
+
+        function showPopup(detail) {
+            alert(detail);
+        }
+    </script>
 </head>
 <body>
-
 <form method="POST">
     <h2>Servers</h2>
     <table>
         <thead>
             <tr>
-                <th class="checkbox-cell"></th>
+                <th class="checkbox-cell">
+                    <input type="checkbox" id="select-all-servers" onclick="toggleSelectAll('servers', this)">
+                </th>
                 <th>Hostname</th>
                 <th>IP Address</th>
                 <th>OS</th>
@@ -95,9 +103,9 @@
         <tbody>
             {% for server in servers %}
             <tr>
-		<td class="checkbox-cell">
-            		<input type="checkbox" name="servers" value='{{ server | tojson }}'>
-        	</td>
+                <td class="checkbox-cell">
+                    <input type="checkbox" name="servers" value="{{ server.name }}">
+                </td>
                 <td>{{ server.name }}</td>
                 <td>{{ server.ip }}</td>
                 <td>{{ server.os }}</td>
@@ -115,7 +123,9 @@
     <table>
         <thead>
             <tr>
-                <th class="checkbox-cell"></th>
+                <th class="checkbox-cell">
+                    <input type="checkbox" id="select-all-linux" onclick="toggleSelectAll('linux_checklist', this)">
+                </th>
                 <th>#</th>
                 <th>Message</th>
                 <th>Detail</th>
@@ -129,7 +139,7 @@
                 <td>{{ item.number }}</td>
                 <td>{{ item.msg }}</td>
                 <td>
-                    <button class="detail-btn" onclick="showPopup('{{ item.detail }}')">보기</button>
+                    <button type="button" class="detail-btn" onclick="showPopup('{{ item.detail }}')">보기</button>
                 </td>
                 <td>{{ item.level }}</td>
             </tr>
@@ -141,7 +151,9 @@
     <table>
         <thead>
             <tr>
-                <th class="checkbox-cell"></th>
+                <th class="checkbox-cell">
+                    <input type="checkbox" id="select-all-windows" onclick="toggleSelectAll('windows_checklist', this)">
+                </th>
                 <th>#</th>
                 <th>Message</th>
                 <th>Detail</th>
@@ -155,7 +167,7 @@
                 <td>{{ item.number }}</td>
                 <td>{{ item.msg }}</td>
                 <td>
-                    <button class="detail-btn" onclick="showPopup('{{ item.detail }}')">보기</button>
+                    <button type="button" class="detail-btn" onclick="showPopup('{{ item.detail }}')">보기</button>
                 </td>
                 <td>{{ item.level }}</td>
             </tr>
@@ -165,33 +177,6 @@
 
     <button type="submit">SEND</button>
 </form>
-
-<div class="popup" id="popup">
-    <div class="popup-content">
-        <span class="close" onclick="closePopup()">&times;</span>
-        <h3>Detail</h3>
-        <p id="popup-text"></p>
-    </div>
-</div>
-
-<script>
-    function showPopup(detail) {
-        document.getElementById('popup-text').innerText = detail;
-        document.getElementById('popup').style.display = 'flex';
-    }
-
-    function closePopup() {
-        document.getElementById('popup').style.display = 'none';
-    }
-
-    // 페이지 클릭 시 팝업 닫기 (배경 클릭 시)
-    window.onclick = function(event) {
-        if (event.target == document.getElementById('popup')) {
-            closePopup();
-        }
-    }
-</script>
-
 </body>
 </html>
 

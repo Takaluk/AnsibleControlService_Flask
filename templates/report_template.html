@@ -1,39 +1,22 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>Scan Report</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f5f5f5;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            min-height: 100vh;
-            overflow-y: auto;
-        }
-        .container {
-            width: 60%;
-            background-color: #fff;
-            padding: 20px;
-            border: 1px solid #ddd;
-            text-align: center;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            margin: 20px 0;
-        }
-        h1 {
-            color: #002c5f;
+            margin: 20px;
         }
         h2 {
-            color: #002c5f;
+            margin-bottom: 20px;
+            color: #333;
         }
         table {
             width: 100%;
             border-collapse: collapse;
-            margin: 20px 0;
+            margin-bottom: 30px;
         }
         th, td {
             border: 1px solid #ddd;
@@ -41,32 +24,142 @@
             text-align: left;
         }
         th {
-            background-color: #f0f0f0;
+            background-color: #f2f2f2;
         }
         tr:nth-child(even) {
             background-color: #f9f9f9;
         }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        .summary-table {
+            margin-bottom: 40px;
+        }
+        .summary-table th {
+            text-align: center;
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Scan Report</h1>
-        {% for server in servers %}
-            <h2>Server: {{ server.hostname }}</h2>
-            <table>
-                <tr>
-                    <th>Unit</th>
-                    <th>Status</th>
-                </tr>
-                {% for unit, status in server.scan_results.items() %}
-                    <tr>
-                        <td>{{ unit }}</td>
-                        <td>{{ 'Pass' if status else 'Fail' }}</td>
-                    </tr>
-                {% endfor %}
-            </table>
+
+<h2>전체 통계 요약</h2>
+
+<div class="summary-table">
+    <h3>부서별 준수율</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>부서명</th>
+                <th>준수율</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for department, compliance in department_compliance.items() %}
+            <tr>
+                <td>{{ department }}</td>
+                <td>{{ compliance }}%</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="summary-table">
+    <h3>OS별 준수율</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>OS</th>
+                <th>준수율</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for os_type, compliance in os_compliance.items() %}
+            <tr>
+                <td>{{ os_type }}</td>
+                <td>{{ compliance }}%</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="summary-table">
+    <h3>취약점 TOP 10</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>취약점 번호</th>
+                <th>False 숫자</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for vulnerability, count in top_vulnerabilities %}
+            <tr>
+                <td>{{ vulnerability }}</td>
+                <td>{{ count }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<h2>상세 내용</h2>
+<table>
+    {% for server in servers %}
+    <thead>
+        <tr>
+            <th>서버 이름</th>
+            <th>IP</th>
+            <th>OS</th>
+            <th>버전</th>
+            <th>보안 수준</th>
+            <th>부서</th>
+            <th>관리자</th>
+            <th>준수 비율</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>{{ server.name }}</td>
+            <td>{{ server.ip }}</td>
+            <td>{{ server.os }}</td>
+            <td>{{ server.version }}</td>
+            <td>{{ server.security_level }}</td>
+            <td>{{ server.department }}</td>
+            <td>{{ server.managers }}</td>
+            <td>{{ server.compliance_ratio }}%</td>
+        </tr>
+        <tr>
+            <td colspan="8">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>번호</th>
+                            <th>결과</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if server.scan_results %}
+                            {% for item in server.scan_results.items() %}
+                            <tr>
+                                <td>{{ item[0] }}</td>
+                                <td>{{ item[1] }}</td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="2">No scan results available</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </td>
+        </tr>
         {% endfor %}
-    </div>
+    </tbody>
+</table>
+
+
 </body>
 </html>
-
