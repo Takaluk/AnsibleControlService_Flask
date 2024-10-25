@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -6,69 +6,82 @@
     <title>Server Management</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f4f4f4;
-        }
-
-        h2, h3 {
+            font-family: 'Roboto', Arial, sans-serif;
+            background-color: #f6f3f2;
+            margin: 0;
+            padding: 20px;
             color: #333;
         }
-
+        h2, h3 {
+            color: #002c5f;
+        }
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 20px;
-            background: white;
+            margin-bottom: 30px;
+            background-color: #f6f3f2;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            table-layout: fixed;
         }
-
+        table, th, td {
+            border: none;
+        }
         th, td {
-            padding: 10px;
+            padding: 20px;
             text-align: left;
-            border: 1px solid #ddd;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
-
         th {
-            background-color: #f2f2f2;
-            color: #333;
+            background-color: #002c5f;
+            font-weight: bold;
+            font-size: 1.1em;
+            color: #f6f3f2;
         }
-
-        tr:nth-child(even) {
-            background-color: #f9f9f9;
+        tbody tr:nth-child(even) {
+            background-color: #e4dcd3;
         }
-
+        td:hover {
+            background-color: #e6e6e6;
+            cursor: pointer;
+            position: relative;
+        }
         .checkbox-cell {
             width: 30px;
             text-align: center;
         }
-
         button.detail-btn {
-            background-color: #007BFF;
+            background-color: #002c5f;
             color: white;
             border: none;
-            padding: 5px 10px;
+            padding: 10px 15px;
             cursor: pointer;
             border-radius: 5px;
         }
-
         button.detail-btn:hover {
-            background-color: #0056b3;
+            background-color: #218838;
         }
-
         button[type="submit"] {
-            background-color: #28a745;
+            display: block;
+            width: 200px;
+            margin: 30px auto;
+            padding: 15px 20px;
+            background-color: #002c5f;
             color: white;
-            border: none;
-            padding: 10px 20px;
-            cursor: pointer;
-            border-radius: 5px;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 30px;
+            font-size: 1.2em;
+            transition: background-color 0.3s ease;
         }
-
         button[type="submit"]:hover {
             background-color: #218838;
         }
     </style>
-    <script>
+        <script>
         function toggleSelectAll(checklistName, selectAllCheckbox) {
             const checkboxes = document.querySelectorAll(`input[name="${checklistName}"]`);
             checkboxes.forEach(checkbox => {
@@ -82,101 +95,102 @@
     </script>
 </head>
 <body>
-<form method="POST">
-    <h2>Servers</h2>
-    <table>
-        <thead>
-            <tr>
-                <th class="checkbox-cell">
-                    <input type="checkbox" id="select-all-servers" onclick="toggleSelectAll('servers', this)">
-                </th>
-                <th>Hostname</th>
-                <th>IP Address</th>
-                <th>OS</th>
-                <th>Version</th>
-                <th>Status</th>
-                <th>Security Level</th>
-                <th>Department</th>
-                <th>Manager</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for server in servers %}
-            <tr>
-                <td class="checkbox-cell">
-                    <input type="checkbox" name="servers" value="{{ server.name }}">
-                </td>
-                <td>{{ server.name }}</td>
-                <td>{{ server.ip }}</td>
-                <td>{{ server.os }}</td>
-                <td>{{ server.version }}</td>
-                <td>{{ server.status }}</td>
-                <td>{{ server.security_level }}</td>
-                <td>{{ server.department }}</td>
-                <td>{{ server.manager }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-
-    <h3>Linux Checklist</h3>
-    <table>
-        <thead>
-            <tr>
-                <th class="checkbox-cell">
-                    <input type="checkbox" id="select-all-linux" onclick="toggleSelectAll('linux_checklist', this)">
-                </th>
-                <th>#</th>
-                <th>Message</th>
-                <th>Detail</th>
-                <th>Level</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for item in linux_checklist %}
-            <tr>
-                <td class="checkbox-cell"><input type="checkbox" name="linux_checklist" value="{{ item.number }}"></td>
-                <td>{{ item.number }}</td>
-                <td>{{ item.msg }}</td>
-                <td>
-                    <button type="button" class="detail-btn" onclick="showPopup('{{ item.detail }}')">보기</button>
-                </td>
-                <td>{{ item.level }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-
-    <h3>Windows Checklist</h3>
-    <table>
-        <thead>
-            <tr>
-                <th class="checkbox-cell">
-                    <input type="checkbox" id="select-all-windows" onclick="toggleSelectAll('windows_checklist', this)">
-                </th>
-                <th>#</th>
-                <th>Message</th>
-                <th>Detail</th>
-                <th>Level</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for item in windows_checklist %}
-            <tr>
-                <td class="checkbox-cell"><input type="checkbox" name="windows_checklist" value="{{ item.number }}"></td>
-                <td>{{ item.number }}</td>
-                <td>{{ item.msg }}</td>
-                <td>
-                    <button type="button" class="detail-btn" onclick="showPopup('{{ item.detail }}')">보기</button>
-                </td>
-                <td>{{ item.level }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-
-    <button type="submit">SEND</button>
-</form>
+    <form method="POST">
+        <h2>Servers</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th class="checkbox-cell">
+                        <input type="checkbox" id="select-all-servers" onclick="toggleSelectAll('servers', this)">
+                    </th>
+                    <th>Hostname</th>
+                    <th>IP Address</th>
+                    <th>OS</th>
+                    <th>Version</th>
+                    <th>Status</th>
+                    <th>Security Level</th>
+                    <th>Department</th>
+                    <th>Manager</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for server in servers %}
+                <tr>
+                    <td class="checkbox-cell">
+                        <input type="checkbox" name="servers" value="{{ server.name }}">
+                    </td>
+                    <td>{{ server.name }}</td>
+                    <td>{{ server.ip }}</td>
+                    <td>{{ server.os }}</td>
+                    <td>{{ server.version }}</td>
+                    <td>{{ server.status }}</td>
+                    <td>{{ server.security_level }}</td>
+                    <td>{{ server.department }}</td>
+                    <td>{{ server.manager }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <h3>Linux Checklist</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th class="checkbox-cell">
+                        <input type="checkbox" id="select-all-linux" onclick="toggleSelectAll('linux_checklist', this)">
+                    </th>
+                    <th>#</th>
+                    <th>Message</th>
+                    <th>Detail</th>
+                    <th>Level</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in linux_checklist %}
+                <tr>
+                    <td class="checkbox-cell">
+                        <input type="checkbox" name="linux_checklist" value="{{ item.number }}">
+                    </td>
+                    <td>{{ item.number }}</td>
+                    <td>{{ item.msg }}</td>
+                    <td>
+                        <button type="button" class="detail-btn" onclick="showPopup('{{ item.detail }}')">보기</button>
+                    </td>
+                    <td>{{ item.level }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <h3>Windows Checklist</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th class="checkbox-cell">
+                        <input type="checkbox" id="select-all-windows" onclick="toggleSelectAll('windows_checklist', this)">
+                    </th>
+                    <th>#</th>
+                    <th>Message</th>
+                    <th>Detail</th>
+                    <th>Level</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in windows_checklist %}
+                <tr>
+                    <td class="checkbox-cell">
+                        <input type="checkbox" name="windows_checklist" value="{{ item.number }}">
+                    </td>
+                    <td>{{ item.number }}</td>
+                    <td>{{ item.msg }}</td>
+                    <td>
+                        <button type="button" class="detail-btn" onclick="showPopup('{{ item.detail }}')">보기</button>
+                    </td>
+                    <td>{{ item.level }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <button type="submit">SEND</button>
+    </form>
 </body>
 </html>
 
