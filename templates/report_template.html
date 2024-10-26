@@ -3,163 +3,321 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Report</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-        h2 {
-            margin-bottom: 20px;
-            color: #333;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 30px;
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-        tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-        tr:hover {
-            background-color: #f1f1f1;
-        }
-        .summary-table {
-            margin-bottom: 40px;
-        }
-        .summary-table th {
-            text-align: center;
-        }
-    </style>
+    <title>점검 결과</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+    body {
+        font-family: 'Roboto', Arial, sans-serif;
+        background-color: #f6f3f2;
+        margin: 0;
+        padding: 20px;
+        color: #333;
+        text-align: center; /* 요소들을 가운데 정렬 */
+    }
+    h1 {
+        color: #002c5f;
+        margin-bottom: 30px;
+        font-size: 2.5em;
+    }
+    h2, h3 {
+        color: #002c5f;
+    }
+    .summary-container {
+        display: flex;
+        justify-content: center; /* 가운데 정렬 */
+        margin-bottom: 40px;
+    }
+    .summary-section {
+        width: 32%;
+        margin: 0 10px; /* 섹션 사이 여백 추가 */
+    }
+    .chart-container {
+        width: 100%;
+        margin: auto;
+        height: 300px; /* Set the height here */
+    }
+    table {
+        max-width: 1100px; /* 최대 너비 설정 */
+        width: 100%;
+        border-collapse: collapse;
+        margin: 0 auto 30px; /* 가운데 정렬을 위해 margin 수정 */
+        background-color: #f6f3f2;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        table-layout: auto; /* 자동 너비 조정 */
+    }
+    table, th, td {
+        border: none;
+    }
+    th, td {
+        padding: 20px;
+        text-align: left;
+        white-space: normal; /* 내용이 넘칠 때 줄바꿈 허용 */
+        overflow: visible; /* 넘칠 때 보이도록 설정 */
+        text-overflow: clip; /* 생략하지 않도록 설정 */
+    }
+    th {
+        background-color: #002c5f;
+        font-weight: bold;
+        font-size: 1.1em;
+        color: #f6f3f2;
+    }
+    tbody tr:nth-child(even) {
+        background-color: #e4dcd3;
+    }
+    td:hover {
+        background-color: #e6e6e6;
+        cursor: pointer;
+        position: relative;
+    }
+    .btn {
+        display: block;
+        width: 200px;
+        margin: 30px auto;
+        padding: 15px 20px;
+        background-color: #002c5f;
+        color: white;
+        text-align: center;
+        text-decoration: none;
+        border-radius: 30px;
+        font-size: 1.2em;
+        transition: background-color 0.3s ease;
+    }
+    .btn:hover {
+        background-color: #00aad2;
+    }
+</style>
+
+
 </head>
 <body>
+    <h1>점검 결과</h1>
 
-<h2>전체 통계 요약</h2>
+    <h2>전체 통계 요약</h2>
+    <div class="summary-container">
+        <div class="summary-section">
+            <h3>부서별 준수율</h3>
+            <div class="chart-container">
+                <canvas id="departmentComplianceChart"></canvas>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>부서명</th>
+                        <th>준수율</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for department, compliance in department_compliance.items() %}
+                    <tr>
+                        <td>{{ department }}</td>
+                        <td>{{ compliance }}%</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
 
-<div class="summary-table">
-    <h3>부서별 준수율</h3>
+        <div class="summary-section">
+            <h3>OS별 준수율</h3>
+            <div class="chart-container">
+                <canvas id="osComplianceChart"></canvas>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>OS</th>
+                        <th>준수율</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for os_type, compliance in os_compliance.items() %}
+                    <tr>
+                        <td>{{ os_type }}</td>
+                        <td>{{ compliance }}%</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="summary-section">
+            <h3>취약점 TOP 10</h3>
+            <div class="chart-container">
+                <canvas id="topVulnerabilitiesChart"></canvas>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>취약점 번호</th>
+                        <th>False 숫자</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for vulnerability, count in top_vulnerabilities %}
+                    <tr>
+                        <td>{{ vulnerability }}</td>
+                        <td>{{ count }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <h2>상세 내용</h2>
     <table>
         <thead>
             <tr>
-                <th>부서명</th>
-                <th>준수율</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for department, compliance in department_compliance.items() %}
-            <tr>
-                <td>{{ department }}</td>
-                <td>{{ compliance }}%</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
-
-<div class="summary-table">
-    <h3>OS별 준수율</h3>
-    <table>
-        <thead>
-            <tr>
+                <th>서버 이름</th>
+                <th>IP</th>
                 <th>OS</th>
-                <th>준수율</th>
+                <th>버전</th>
+                <th>보안 수준</th>
+                <th>부서</th>
+                <th>관리자</th>
+                <th>준수 비율</th>
             </tr>
         </thead>
         <tbody>
-            {% for os_type, compliance in os_compliance.items() %}
+            {% for server in servers %}
             <tr>
-                <td>{{ os_type }}</td>
-                <td>{{ compliance }}%</td>
+                <td>{{ server.name }}</td>
+                <td>{{ server.ip }}</td>
+                <td>{{ server.os }}</td>
+                <td>{{ server.version }}</td>
+                <td>{{ server.security_level }}</td>
+                <td>{{ server.department }}</td>
+                <td>{{ server.manager }}</td>
+                <td>{{ server.compliance_ratio }}%</td>
+            </tr>
+            <tr>
+                <td colspan="8">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>번호</th>
+                                <th>결과</th>
+                                <th>조치</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if server.scan_results %}
+                                {% for item in server.scan_results.items() %}
+                                    <tr>
+                                        <td>{{ item[0] }}</td>
+                                        <td>{{ item[1][0] }}</td>
+                                        <td>{{ item[1][1] }}</td>
+                                    </tr>
+                                {% endfor %}
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
-</div>
+    <script>
+        const departmentCompliance = {{ department_compliance|tojson }};
+        const osCompliance = {{ os_compliance|tojson }};
+        const topVulnerabilities = {{ top_vulnerabilities|tojson }};
 
-<div class="summary-table">
-    <h3>취약점 TOP 10</h3>
-    <table>
-        <thead>
-            <tr>
-                <th>취약점 번호</th>
-                <th>False 숫자</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for vulnerability, count in top_vulnerabilities %}
-            <tr>
-                <td>{{ vulnerability }}</td>
-                <td>{{ count }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
+        // Set fixed height for the charts
+        function setChartHeight(chart) {
+            chart.canvas.parentNode.style.height = '300px';
+        }
 
-<h2>상세 내용</h2>
-<table>
-    {% for server in servers %}
-    <thead>
-        <tr>
-            <th>서버 이름</th>
-            <th>IP</th>
-            <th>OS</th>
-            <th>버전</th>
-            <th>보안 수준</th>
-            <th>부서</th>
-            <th>관리자</th>
-            <th>준수 비율</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>{{ server.name }}</td>
-            <td>{{ server.ip }}</td>
-            <td>{{ server.os }}</td>
-            <td>{{ server.version }}</td>
-            <td>{{ server.security_level }}</td>
-            <td>{{ server.department }}</td>
-            <td>{{ server.managers }}</td>
-            <td>{{ server.compliance_ratio }}%</td>
-        </tr>
-        <tr>
-            <td colspan="8">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>번호</th>
-                            <th>결과</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% if server.scan_results %}
-                            {% for item in server.scan_results.items() %}
-                            <tr>
-                                <td>{{ item[0] }}</td>
-                                <td>{{ item[1] }}</td>
-                            </tr>
-                            {% endfor %}
-                        {% else %}
-                            <tr>
-                                <td colspan="2">No scan results available</td>
-                            </tr>
-                        {% endif %}
-                    </tbody>
-                </table>
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+        // Department Compliance Bar Chart
+        const ctxDept = document.getElementById('departmentComplianceChart').getContext('2d');
+        const deptChart = new Chart(ctxDept, {
+            type: 'bar',
+            data: {
+                labels: Object.keys(departmentCompliance),
+                datasets: [{
+                    label: 'Department Compliance (%)',
+                    data: Object.values(departmentCompliance),
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+        setChartHeight(deptChart);
 
+        // OS Compliance Bar Chart
+        const ctxOS = document.getElementById('osComplianceChart').getContext('2d');
+        const osChart = new Chart(ctxOS, {
+            type: 'bar',
+            data: {
+                labels: Object.keys(osCompliance),
+                datasets: [{
+                    label: 'OS Compliance (%)',
+                    data: Object.values(osCompliance),
+                    backgroundColor: 'rgba(153, 102, 255, 0.2)',
+                    borderColor: 'rgba(153, 102, 255, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+        setChartHeight(osChart);
 
+        // Top Vulnerabilities Pie Chart
+        const ctxVuln = document.getElementById('topVulnerabilitiesChart').getContext('2d');
+        const vulnChart = new Chart(ctxVuln, {
+            type: 'pie',
+            data: {
+                labels: topVulnerabilities.map(item => item[0]),
+                datasets: [{
+                    label: 'Top 10 Vulnerabilities',
+                    data: topVulnerabilities.map(item => item[1]),
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(255, 206, 86, 0.2)',
+                        'rgba(75, 192, 192, 0.2)',
+                        'rgba(153, 102, 255, 0.2)',
+                        'rgba(255, 159, 64, 0.2)',
+                        'rgba(255, 99, 132, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(255, 206, 86, 0.2)',
+                        'rgba(75, 192, 192, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)',
+                        'rgba(255, 159, 64, 1)',
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true
+            }
+        });
+        setChartHeight(vulnChart);
+    </script>
 </body>
 </html>
