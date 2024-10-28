@@ -32,8 +32,8 @@ def status():
 
     # 서버 정보를 JSON 파일에서 읽기 (sudo 사용)
     sudo_command = 'sudo cat /AnsibleVulnScanner/docs/server_inform.json'
-    json_output = subprocess.getoutput(sudo_command)
-
+    result = subprocess.run(sudo_command, shell=True, capture_output=True, text=True)
+    json_output = result.stdout
     try:
         server_inform = json.loads(json_output)
     except json.JSONDecodeError:

@@ -24,7 +24,15 @@ def read_json_file(file_path):
     except Exception as e:
         print(f"Error reading file: {e}")
         return []
-def append_action_messages(scan_results, action_data):
+def append_action_messages(scan_results, action_name, action_data):
+    for item in action_name:
+        number = item["number"]
+        msg = item["msg"]
+        if number in scan_results:
+            if isinstance(scan_results[number], list):
+                scan_results[number].append(msg)
+            else:
+                scan_results[number] = [scan_results[number], msg]
     for item in action_data:
         number = item["number"]
         msg = item["msg"]
@@ -82,6 +90,21 @@ def report():
     os_compliance = {}
     vulnerability_counts = {}
 
+
+    sudo_command = 'sudo cat /AnsibleVulnScanner/docs/linux_checklist_detail.json'
+    json_output = subprocess.getoutput(sudo_command)
+    try:
+        linux_checklist_name = json.loads(json_output)
+    except json.JSONDecodeError:
+        linux_checklist_name = []
+
+    sudo_command = 'sudo cat /AnsibleVulnScanner/docs/windows_checklist_detail.json'
+    json_output = subprocess.getoutput(sudo_command)
+    try:
+        windows_checklist_name = json.loads(json_output)
+    except json.JSONDecodeError:
+        windows_checklist_name = []
+
     sudo_command = 'sudo cat /AnsibleVulnScanner/docs/linux_action_inform.json'
     json_output = subprocess.getoutput(sudo_command)
     try:
@@ -137,14 +160,13 @@ def report():
     # Calculate average compliance for departments and OS types
     department_avg_compliance = {dept: round(sum(ratios) / len(ratios), 2) for dept, ratios in department_compliance.items()}
     os_avg_compliance = {os_type: round(sum(ratios) / len(ratios), 2) for os_type, ratios in os_compliance.items()}
-
     for server in servers_list:
         # Append action messages based on OS type
         os_type = server.get('os')
         if os_type == 'Windows':
-            append_action_messages(server['scan_results'], windows_action_data)
+            append_action_messages(server['scan_results'], windows_checklist_name,windows_action_data)
         else:
-            append_action_messages(server['scan_results'], linux_action_data)
+            append_action_messages(server['scan_results'], linux_checklist_name,linux_action_data)
     # Get top 10 vulnerabilities
     top_vulnerabilities = sorted(vulnerability_counts.items(), key=lambda item: item[1], reverse=True)[:10]
     return render_template('report_template.html', servers=servers_list,
